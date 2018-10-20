@@ -163,3 +163,14 @@ app.on("ready", initApp)
 app.on("will-quit", () => {
     globalShortcut.unregisterAll()
 })
+
+if (app.requestSingleInstanceLock()){
+    app.on('second-instance', ()=>{
+        if(!win.isVisible()){
+            win.show()
+        }
+        win.focus()
+    })
+}else{
+    app.quit()
+}
