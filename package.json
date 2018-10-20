@@ -1,16 +1,25 @@
 {
-  "name": "deezer-client",
-  "version": "0.0.1",
-  "description": "A client for deezer coz I can't seem to find a decent one compartible with my bank account",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
-  },
-  "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "electron": "^3.0.4"
-  },
-  "dependencies": {}
+    "name": "deezer-client",
+    "version": "0.0.1",
+    "description": "A client for deezer coz I can't seem to find a decent one compartible with my bank account",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron ."
+    },
+    "repository": "https://github.com/Billcountry/deezer",
+    "keywords": [
+        "Deezer",
+        "Music",
+        "Client",
+        "Linux",
+        "Arch",
+        "Ubuntu",
+        "Mint"
+    ],
+    "author": "Billcountry",
+    "license": "MIT",
+    "devDependencies": {
+        "electron": "^3.0.4"
+    },
+    "dependencies": {}
 }
