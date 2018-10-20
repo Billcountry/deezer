@@ -4,7 +4,8 @@
     "description": "A client for deezer coz I can't seem to find a decent one compartible with my bank account",
     "main": "main.js",
     "scripts": {
-        "start": "electron ."
+        "start": "electron .",
+        "build": "electron-packager ./ Deezer --platform=linux arch=x64"
     },
     "repository": "https://github.com/Billcountry/deezer",
     "keywords": [
@@ -19,7 +20,8 @@
     "author": "Billcountry",
     "license": "MIT",
     "devDependencies": {
-        "electron": "^3.0.4"
+        "electron": "^3.0.4",
+        "electron-packager": "^12.2.0"
     },
     "dependencies": {}
 }
