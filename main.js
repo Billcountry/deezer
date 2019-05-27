@@ -1,12 +1,10 @@
 const electron = require("electron")
-const platform = require("os").platform()
+const Player = require("mpris-service")
 
 const {
     app,
     BrowserWindow,
-    globalShortcut,
     Tray,
-    Menu,
     ipcMain,
     Notification,
     nativeImage,
@@ -16,6 +14,7 @@ let win
 let tray
 let complete_exit = false
 let notification
+
 const init_js = `
 if(!window.client_setadresdcsac){
     const electron = require("electron");
@@ -45,13 +44,6 @@ function initApp(params) {
         }
     })
 
-    // Register Shortcuts
-    globalShortcut.register("MediaPlayPause", () => {
-        isPlaying(pause, play)
-    })
-    globalShortcut.register("MediaNextTrack", next)
-    globalShortcut.register("MediaPreviousTrack", prev)
-
     // Handle Events from client
     ipcMain.on("notifs", handleClientNotifs)
     win.webContents.on("did-stop-loading", event => {
@@ -61,22 +53,15 @@ function initApp(params) {
     // Tray Menu control
     setUpTray()
 }
+
 function setUpTray() {
     const image = nativeImage.createFromPath(__dirname + "/icons/Icon.png")
     image.setTemplateImage(true)
     tray = new Tray(image)
 
-    const menu = Menu.buildFromTemplate([
-        { label: "Show/Hide", type: "normal", click: show_hide },
-        { label: "Next Track", type: "normal", click: next },
-        { label: "Previous Track", type: "normal", click: prev },
-    ])
-    tray.setContextMenu(menu)
-    tray.on("click", show_hide)
-    tray.setTitle("Deezer")
     tray.setToolTip("Deezer")
     tray.on("click", () => {
-        console.log("Push out something")
+        show_hide()
     })
 }
 
@@ -96,11 +81,18 @@ function osNotify(notif) {
             dzPlayer.getSongTitle(),
             dzPlayer.getAlbumTitle(),
             dzPlayer.getArtistName(),
-            dzPlayer.isPlaying()
+            dzPlayer.isPlaying(),
+            dzPlayer.getDuration(),
+            dzPlayer.getCover(),
+            dzPlayer.getCurrentSong().MD5_ORIGIN
         ]`,
         result => {
-            let [title, alburm, artist, playing] = result
+            let [title, alburm, artist, playing, duration, cover_id, track_id] = result
+            const cover = `https://e-cdns-images.dzcdn.net/images/cover/${cover_id}/380x380-000000-80-0-0.jpg`
             playing = notif === "audioPlayer_playTracks" ? true : playing
+
+            updatePlayer({ title, alburm, artist, playing, duration, cover, track_id })
+
             if (Notification.isSupported()) {
                 if (!notification) {
                     notification = new Notification({
@@ -127,8 +119,16 @@ function osNotify(notif) {
     )
 }
 
-function show_hide() {
-    win.isVisible() ? win.hide() : win.show()
+function show_hide(focus) {
+    if(win.isVisible() && focus){
+        win.focus()
+        return
+    }else if(win.isVisible()){
+        win.hide()
+        return
+    }
+    win.show()
+    win.focus()
 }
 
 function exit() {
@@ -160,10 +160,6 @@ function isPlaying(playing, paused) {
 
 app.on("ready", initApp)
 
-app.on("will-quit", () => {
-    globalShortcut.unregisterAll()
-})
-
 if (app.requestSingleInstanceLock()){
     app.on('second-instance', ()=>{
         if(!win.isVisible()){
@@ -174,3 +170,71 @@ if (app.requestSingleInstanceLock()){
 }else{
     app.quit()
 }
+
+
+let player = Player({
+    name: 'deezer',
+    identity: 'Deezer Desktop',
+    supportedUriSchemes: ['file'],
+    supportedMimeTypes: ['audio/mpeg', 'application/ogg'],
+    supportedInterfaces: ['player']
+})
+
+function getPosition() {
+    return 0
+    let position = 0
+    win.webContents.executeJavaScript(`dzPlayer.getPosition()`).then(result => {
+        position = result
+    })
+    return parseInt(position * 1000)
+}
+
+player.getPosition = getPosition
+
+function updatePlayer(props) {
+    const { title, alburm, artist, playing, duration, cover, track_id } = props
+
+    player.metadata = {
+        'mpris:trackid': player.objectPath('track/0'),
+        'mpris:length': parseInt(duration) * 1000, // In microseconds
+        'mpris:artUrl': cover,
+        'xesam:title': title,
+        'xesam:album': alburm,
+        'xesam:artist': [artist]
+    }
+
+    player.playbackStatus = playing ? Player.PLAYBACK_STATUS_PLAYING : Player.PLAYBACK_STATUS_PAUSED
+}
+
+player.on("play", play)
+player.on("pause", pause)
+player.on("playpause", () => {
+    isPlaying(pause, play)
+})
+player.on("next", next)
+player.on("previous", prev)
+
+
+player.on("quit", ()=>{
+    process.exit()
+})
+
+player.on("raise", ()=>{
+    show_hide(true)
+})
+
+
+// Events
+var events = ['quit', 'stop', 'seek', 'position', 'open', 'volume', 'loopStatus', 'shuffle'];
+events.forEach(function (eventName) {
+    player.on(eventName, function () {
+        console.log('Event:', eventName, arguments);
+    });
+});
+
+// player.canSeek = false
+
+player.on("volume", vol => {
+    console.log("Volume updated")
+    console.log(vol)
+})
