@@ -23,5 +23,7 @@
         "electron": "^3.0.4",
         "electron-packager": "^12.2.0"
     },
-    "dependencies": {}
+    "dependencies": {
+        "mpris-service": "^2.1.0"
+    }
 }
