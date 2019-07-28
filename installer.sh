@@ -30,10 +30,10 @@ echo "mkdir ~/.local/share/deezer-client ..."
 mkdir ~/.local/share/deezer-client
 
 echo "mv -r Deezer-linux-x64/* ~/.local/share/deezer-client ..."
-mv -r Deezer-linux-x64/* ~/.local/share/deezer-client
+mv Deezer-linux-x64/* ~/.local/share/deezer-client
 
 echo "ln -s ~/.local/share/deezer-client/Deezer ~/.local/bin/deezer-client ..."
-echo ln -s ~/.local/share/deezer-client/Deezer ~/.local/bin/deezer-client
+ln -s ~/.local/share/deezer-client/Deezer ~/.local/bin/deezer-client
 
 echo "cp deezer-client.desktop ~/.local/share/applications ..."
 cp deezer-client.desktop ~/.local/share/applications
