@@ -1,5 +1,7 @@
 # A simple installer Script that clones the repo and builds your app
 echo "Starting installation for deezer client"
+mkdir -p ~/.local/bin
+mkdir -p ~/.local/share/applications
 cd ~/.local/
 
 echo "Removing older installs if any" 
