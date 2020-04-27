@@ -5,10 +5,10 @@ mkdir -p ~/.local/share/applications
 cd ~/.local/
 
 echo "Removing older installs if any" 
-[ -e deezer-client ] && rm -r deezer-client
-[ -e share/deezer-client ] && rm -r share/deezer-client
-[ -e share/applications/deezer-client.desktop ] && rm share/applications/deezer-client.desktop
-[ -e bin/deezer-client ] && rm bin/deezer-client
+[ -e deezer-client ] && rm -rf deezer-client
+[ -e share/deezer-client ] && rm -rf share/deezer-client
+[ -e share/applications/deezer-client.desktop ] && rm -f share/applications/deezer-client.desktop
+[ -e bin/deezer-client ] && rm -f bin/deezer-client
 
 echo "mkdir deezer-client ..."
 mkdir deezer-client
@@ -37,13 +37,16 @@ mv -v Deezer-linux-x64/* ~/.local/share/deezer-client/
 echo "ln -s ~/.local/share/deezer-client/Deezer ~/.local/bin/deezer-client ..."
 ln -s ~/.local/share/deezer-client/Deezer ~/.local/bin/deezer-client
 
-echo "cp deezer-client.desktop ~/.local/share/applications ..."
-cp deezer-client.desktop ~/.local/share/applications
+echo "sed 's/~/$HOME/g' deezer-client.desktop > $HOME/.local/share/applications/deezer-client.desktop ..."
+sed "s*~*$HOME*g" deezer-client.desktop > $HOME/.local/share/applications/deezer-client.desktop
+
+echo "chmod +x $HOME/.local/share/applications/deezer-client.desktop ..."
+chmod +x $HOME/.local/share/applications/deezer-client.desktop
 
 echo "cd ~/.local/ ..."
 cd ~/.local/
 
-echo "rm -r deezer-client ..."
-rm -R deezer-client
+echo "rm -rf deezer-client ..."
+rm -rf deezer-client
 
 echo "Yo! good to go ..."
